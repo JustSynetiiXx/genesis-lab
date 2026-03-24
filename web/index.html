@@ -15,7 +15,7 @@
       flex-direction: column;
       align-items: center;
       min-height: 100vh;
-      padding: 24px;
+      padding: 24px 16px;
     }
 
     h1 {
@@ -26,10 +26,19 @@
       letter-spacing: 2px;
     }
 
+    h2 {
+      font-size: 14px;
+      font-weight: 500;
+      color: #8b949e;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+    }
+
     .controls {
       display: flex;
       gap: 12px;
-      margin-bottom: 20px;
+      margin-bottom: 12px;
     }
 
     button {
@@ -51,11 +60,76 @@
     button.danger { border-color: #f85149; }
     button.danger:hover { background: #da3633; }
 
+    .toggle-params {
+      background: none;
+      border: none;
+      color: #58a6ff;
+      font-size: 12px;
+      cursor: pointer;
+      padding: 4px 8px;
+      margin-bottom: 8px;
+    }
+    .toggle-params:hover { text-decoration: underline; }
+
+    /* Parameter Panel */
+    .params-panel {
+      width: 100%;
+      max-width: 540px;
+      background: #161b22;
+      border: 1px solid #21262d;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+      display: none;
+    }
+    .params-panel.open { display: block; }
+    .params-panel.disabled { opacity: 0.4; pointer-events: none; }
+
+    .param-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      gap: 12px;
+    }
+    .param-row:last-child { margin-bottom: 0; }
+
+    .param-label {
+      font-size: 12px;
+      color: #8b949e;
+      min-width: 120px;
+      flex-shrink: 0;
+    }
+
+    .param-row input[type="range"] {
+      flex: 1;
+      accent-color: #58a6ff;
+      background: transparent;
+    }
+
+    .param-row select {
+      background: #21262d;
+      color: #e6edf3;
+      border: 1px solid #30363d;
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-family: inherit;
+      font-size: 12px;
+      flex: 1;
+    }
+
+    .param-val {
+      font-size: 12px;
+      color: #58a6ff;
+      min-width: 60px;
+      text-align: right;
+    }
+
     .stats {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 12px;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
       width: 100%;
       max-width: 540px;
     }
@@ -86,12 +160,71 @@
       border: 1px solid #21262d;
       border-radius: 8px;
       image-rendering: pixelated;
+      max-width: 100%;
+    }
+
+    .section {
+      width: 100%;
+      max-width: 540px;
+      margin-bottom: 16px;
+    }
+
+    /* Ops bars */
+    .ops-chart {
+      background: #161b22;
+      border: 1px solid #21262d;
+      border-radius: 8px;
+      padding: 12px;
+    }
+
+    .ops-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 4px;
+      font-size: 11px;
+    }
+    .ops-row:last-child { margin-bottom: 0; }
+
+    .ops-name {
+      width: 80px;
+      color: #8b949e;
+      flex-shrink: 0;
+    }
+
+    .ops-bar-bg {
+      flex: 1;
+      height: 14px;
+      background: #21262d;
+      border-radius: 3px;
+      overflow: hidden;
+      margin: 0 8px;
+    }
+
+    .ops-bar {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.3s;
+      min-width: 0;
+    }
+
+    .ops-pct {
+      width: 40px;
+      text-align: right;
+      color: #8b949e;
     }
 
     .status {
       margin-top: 12px;
       font-size: 12px;
       color: #8b949e;
+    }
+
+    @media (max-width: 560px) {
+      body { padding: 12px 8px; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .stat-value { font-size: 16px; }
+      h1 { font-size: 22px; }
+      canvas { width: 100%; height: auto; }
     }
   </style>
 </head>
@@ -101,6 +234,45 @@
   <div class="controls">
     <button id="btn-start" class="primary">Start</button>
     <button id="btn-stop" class="danger" disabled>Stop</button>
+  </div>
+
+  <button class="toggle-params" id="btn-toggle-params">Parameter &#9660;</button>
+
+  <div class="params-panel" id="params-panel">
+    <div class="param-row">
+      <span class="param-label">Speichergr&ouml;&szlig;e</span>
+      <select id="p-speicher">
+        <option value="262144">256 KB</option>
+        <option value="524288">512 KB</option>
+        <option value="1048576" selected>1 MB</option>
+      </select>
+      <span class="param-val" id="pv-speicher">1 MB</span>
+    </div>
+    <div class="param-row">
+      <span class="param-label">Nahrung/Tick</span>
+      <input type="range" id="p-nahrung" min="50" max="500" value="200" step="10">
+      <span class="param-val" id="pv-nahrung">200</span>
+    </div>
+    <div class="param-row">
+      <span class="param-label">Mutationsrate</span>
+      <input type="range" id="p-mutation" min="100" max="2000" value="500" step="50">
+      <span class="param-val" id="pv-mutation">1/500</span>
+    </div>
+    <div class="param-row">
+      <span class="param-label">Verfall/Tick</span>
+      <input type="range" id="p-verfall" min="10" max="500" value="100" step="10">
+      <span class="param-val" id="pv-verfall">100</span>
+    </div>
+    <div class="param-row">
+      <span class="param-label">Spawn-Energie</span>
+      <input type="range" id="p-spawn" min="10" max="100" value="30" step="5">
+      <span class="param-val" id="pv-spawn">30</span>
+    </div>
+    <div class="param-row">
+      <span class="param-label">Fress-Energie</span>
+      <input type="range" id="p-fress" min="5" max="50" value="20" step="5">
+      <span class="param-val" id="pv-fress">20</span>
+    </div>
   </div>
 
   <div class="stats">
@@ -130,16 +302,58 @@
     </div>
   </div>
 
-  <canvas id="map" width="512" height="256"></canvas>
+  <div class="section">
+    <h2>Weltkarte</h2>
+    <canvas id="map" width="512" height="256"></canvas>
+  </div>
+
+  <div class="section">
+    <h2>Population</h2>
+    <canvas id="pop-graph" width="512" height="128"></canvas>
+  </div>
+
+  <div class="section">
+    <h2>Operations-Verteilung</h2>
+    <div class="ops-chart" id="ops-chart"></div>
+  </div>
+
   <div class="status" id="status">WASM wird geladen...</div>
 
   <script>
-    const canvas = document.getElementById('map');
-    const ctx = canvas.getContext('2d');
-    const W = canvas.width;
-    const H = canvas.height;
-    const imgData = ctx.createImageData(W, H);
+    // --- Map Canvas ---
+    const mapCanvas = document.getElementById('map');
+    const mapCtx = mapCanvas.getContext('2d');
+    const MW = mapCanvas.width, MH = mapCanvas.height;
+    const mapImg = mapCtx.createImageData(MW, MH);
 
+    // --- Population Graph ---
+    const popCanvas = document.getElementById('pop-graph');
+    const popCtx = popCanvas.getContext('2d');
+    const PW = popCanvas.width, PH = popCanvas.height;
+    const popHistory = [];
+    const POP_HISTORY_MAX = 200;
+
+    // --- Ops Chart ---
+    const OPS_NAMES = ['NOOP','LESEN','SCHREIBEN','ADD','VERGL_SPR','KOPIEREN','LESEN_EXT','SELBST','SETZEN','ENDE','SCHR_EXT'];
+    const OPS_COLORS = {
+      6: '#238636',  // LESEN_EXT green
+      10: '#da3633', // SCHR_EXT red
+      5: '#58a6ff',  // KOPIEREN blue
+    };
+    const OPS_DEFAULT_COLOR = '#484f58';
+
+    const opsChart = document.getElementById('ops-chart');
+    // Build ops chart HTML
+    opsChart.innerHTML = OPS_NAMES.map((name, i) => {
+      const color = OPS_COLORS[i] || OPS_DEFAULT_COLOR;
+      return `<div class="ops-row">
+        <span class="ops-name">${name}</span>
+        <div class="ops-bar-bg"><div class="ops-bar" id="ob-${i}" style="width:0%;background:${color}"></div></div>
+        <span class="ops-pct" id="op-${i}">0%</span>
+      </div>`;
+    }).join('');
+
+    // --- DOM refs ---
     const els = {
       tick: document.getElementById('s-tick'),
       pop: document.getElementById('s-pop'),
@@ -151,19 +365,64 @@
 
     const btnStart = document.getElementById('btn-start');
     const btnStop = document.getElementById('btn-stop');
-    const status = document.getElementById('status');
+    const btnToggle = document.getElementById('btn-toggle-params');
+    const paramsPanel = document.getElementById('params-panel');
+    const statusEl = document.getElementById('status');
 
+    // --- Parameter Panel ---
+    let paramsOpen = false;
+    btnToggle.addEventListener('click', () => {
+      paramsOpen = !paramsOpen;
+      paramsPanel.classList.toggle('open', paramsOpen);
+      btnToggle.innerHTML = paramsOpen ? 'Parameter &#9650;' : 'Parameter &#9660;';
+    });
+
+    // Slider displays
+    const paramSliders = [
+      { id: 'p-nahrung', display: 'pv-nahrung', fmt: v => v },
+      { id: 'p-mutation', display: 'pv-mutation', fmt: v => '1/' + v },
+      { id: 'p-verfall', display: 'pv-verfall', fmt: v => v },
+      { id: 'p-spawn', display: 'pv-spawn', fmt: v => v },
+      { id: 'p-fress', display: 'pv-fress', fmt: v => v },
+    ];
+
+    paramSliders.forEach(s => {
+      const el = document.getElementById(s.id);
+      const dsp = document.getElementById(s.display);
+      el.addEventListener('input', () => { dsp.textContent = s.fmt(el.value); });
+    });
+
+    const selectSpeicher = document.getElementById('p-speicher');
+    selectSpeicher.addEventListener('change', () => {
+      const labels = { '262144': '256 KB', '524288': '512 KB', '1048576': '1 MB' };
+      document.getElementById('pv-speicher').textContent = labels[selectSpeicher.value] || selectSpeicher.value;
+    });
+
+    function getConfigJSON() {
+      return JSON.stringify({
+        speicher_groesse: parseInt(selectSpeicher.value),
+        nahrung_pro_tick: parseInt(document.getElementById('p-nahrung').value),
+        mutationsrate: parseInt(document.getElementById('p-mutation').value),
+        verfall_pro_tick: parseInt(document.getElementById('p-verfall').value),
+        spawn_energie: parseInt(document.getElementById('p-spawn').value),
+        fress_energie: parseInt(document.getElementById('p-fress').value),
+      });
+    }
+
+    // --- Worker ---
     let worker = null;
     let updateTimer = null;
+    let opsTimer = null;
     let latestData = null;
     let latestMap = null;
+    let simRunning = false;
 
     function initWorker() {
       worker = new Worker('worker.js', { type: 'module' });
       worker.onmessage = function(e) {
         const msg = e.data;
         if (msg.type === 'ready') {
-          status.textContent = 'Bereit.';
+          statusEl.textContent = 'Bereit.';
           btnStart.disabled = false;
         } else if (msg.type === 'tick') {
           latestData = msg.data;
@@ -181,7 +440,12 @@
       els.div.textContent = d.diversitaet;
       els.food.textContent = d.nahrung_prozent.toFixed(1);
       els.genom.textContent = d.genom_avg.toFixed(1);
-      els.tps.textContent = d.tps ? d.tps.toLocaleString('de-DE') : '—';
+      els.tps.textContent = d.tps ? d.tps.toLocaleString('de-DE') : '\u2014';
+
+      // Population history
+      popHistory.push(d.population);
+      if (popHistory.length > POP_HISTORY_MAX) popHistory.shift();
+      drawPopGraph();
 
       if (latestMap) {
         drawMap(latestMap, d.speicher_groesse);
@@ -189,13 +453,25 @@
       }
     }
 
+    function updateOps() {
+      if (!latestData || !latestData.ops_verteilung) return;
+      const ops = latestData.ops_verteilung;
+      const total = ops.reduce((a, b) => a + b, 0) || 1;
+      for (let i = 0; i < OPS_NAMES.length; i++) {
+        const pct = (ops[i] / total * 100);
+        document.getElementById('ob-' + i).style.width = pct.toFixed(1) + '%';
+        document.getElementById('op-' + i).textContent = pct < 0.1 ? '0%' : pct.toFixed(1) + '%';
+      }
+    }
+
+    // --- Map ---
     const NAHRUNG_A = 42;
     const NAHRUNG_B = 43;
 
     function drawMap(speicher, speicherGroesse) {
-      const pixels = W * H;
+      const pixels = MW * MH;
       const ratio = speicherGroesse / pixels;
-      const data = imgData.data;
+      const data = mapImg.data;
 
       for (let i = 0; i < pixels; i++) {
         const idx = i * 4;
@@ -204,37 +480,74 @@
 
         if (val === 0) {
           data[idx] = 13; data[idx+1] = 17; data[idx+2] = 23;
-        } else if (val === NAHRUNG_A || val === NAHRUNG_B) {
+        } else if (val === NAHRUNG_A) {
           data[idx] = 35; data[idx+1] = 134; data[idx+2] = 54;
+        } else if (val === NAHRUNG_B) {
+          data[idx] = 210; data[idx+1] = 190; data[idx+2] = 40;
         } else {
           data[idx] = 200; data[idx+1] = 210; data[idx+2] = 220;
         }
         data[idx+3] = 255;
       }
 
-      ctx.putImageData(imgData, 0, 0);
+      mapCtx.putImageData(mapImg, 0, 0);
     }
 
+    // --- Pop Graph ---
+    function drawPopGraph() {
+      popCtx.clearRect(0, 0, PW, PH);
+      if (popHistory.length < 2) return;
+
+      const max = Math.max(...popHistory, 1);
+      const step = PW / (POP_HISTORY_MAX - 1);
+
+      popCtx.beginPath();
+      popCtx.strokeStyle = '#58a6ff';
+      popCtx.lineWidth = 1.5;
+
+      for (let i = 0; i < popHistory.length; i++) {
+        const x = i * step;
+        const y = PH - (popHistory[i] / max) * (PH - 4) - 2;
+        if (i === 0) popCtx.moveTo(x, y);
+        else popCtx.lineTo(x, y);
+      }
+      popCtx.stroke();
+
+      // max label
+      popCtx.fillStyle = '#484f58';
+      popCtx.font = '10px monospace';
+      popCtx.fillText('max: ' + max, 4, 12);
+    }
+
+    // --- Start / Stop ---
     btnStart.addEventListener('click', () => {
-      worker.postMessage({ type: 'start', config: '{}' });
+      const config = getConfigJSON();
+      worker.postMessage({ type: 'start', config });
       btnStart.disabled = true;
       btnStop.disabled = false;
-      status.textContent = 'Simulation l\u00E4uft...';
+      paramsPanel.classList.add('disabled');
+      simRunning = true;
+      statusEl.textContent = 'Simulation l\u00E4uft...';
+      popHistory.length = 0;
       updateTimer = setInterval(updateUI, 100);
+      opsTimer = setInterval(updateOps, 500);
     });
 
     btnStop.addEventListener('click', () => {
       worker.postMessage({ type: 'stop' });
       btnStart.disabled = false;
       btnStop.disabled = true;
-      status.textContent = 'Pausiert.';
+      paramsPanel.classList.remove('disabled');
+      simRunning = false;
+      statusEl.textContent = 'Pausiert.';
       if (updateTimer) { clearInterval(updateTimer); updateTimer = null; }
+      if (opsTimer) { clearInterval(opsTimer); opsTimer = null; }
     });
 
-    // Clear canvas
-    ctx.fillStyle = '#0d1117';
-    ctx.fillRect(0, 0, W, H);
-
+    // Init
+    mapCtx.fillStyle = '#0d1117';
+    mapCtx.fillRect(0, 0, MW, MH);
+    popCtx.clearRect(0, 0, PW, PH);
     btnStart.disabled = true;
     initWorker();
   </script>

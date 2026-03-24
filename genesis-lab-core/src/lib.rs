@@ -149,6 +149,7 @@ impl Simulation {
             "ops": ops_total,
             "genom_avg": genom_avg,
             "speicher_groesse": speicher_groesse,
+            "ops_verteilung": self.ops_zaehler,
         });
 
         result.to_string()
