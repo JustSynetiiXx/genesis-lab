@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Genesis Lab</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0d1117;
+      color: #e6edf3;
+      font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 600;
+      color: #58a6ff;
+      margin-bottom: 20px;
+      letter-spacing: 2px;
+    }
+
+    .controls {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    button {
+      background: #21262d;
+      color: #e6edf3;
+      border: 1px solid #30363d;
+      padding: 8px 24px;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    button:hover { background: #30363d; border-color: #58a6ff; }
+    button:disabled { opacity: 0.4; cursor: default; }
+    button.primary { background: #1f6feb; border-color: #58a6ff; }
+    button.primary:hover { background: #388bfd; }
+    button.danger { border-color: #f85149; }
+    button.danger:hover { background: #da3633; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+      width: 100%;
+      max-width: 540px;
+    }
+
+    .stat {
+      background: #161b22;
+      border: 1px solid #21262d;
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: #8b949e;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+    }
+
+    .stat-value {
+      font-size: 20px;
+      font-weight: 600;
+      color: #58a6ff;
+    }
+
+    canvas {
+      border: 1px solid #21262d;
+      border-radius: 8px;
+      image-rendering: pixelated;
+    }
+
+    .status {
+      margin-top: 12px;
+      font-size: 12px;
+      color: #8b949e;
+    }
+  </style>
+</head>
+<body>
+  <h1>GENESIS LAB</h1>
+
+  <div class="controls">
+    <button id="btn-start" class="primary">Start</button>
+    <button id="btn-stop" class="danger" disabled>Stop</button>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-label">Tick</div>
+      <div class="stat-value" id="s-tick">0</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Population</div>
+      <div class="stat-value" id="s-pop">0</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Diversit&auml;t</div>
+      <div class="stat-value" id="s-div">0</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Nahrung %</div>
+      <div class="stat-value" id="s-food">0</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Genom &empty;</div>
+      <div class="stat-value" id="s-genom">0</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Ticks/s</div>
+      <div class="stat-value" id="s-tps">0</div>
+    </div>
+  </div>
+
+  <canvas id="map" width="512" height="256"></canvas>
+  <div class="status" id="status">WASM wird geladen...</div>
+
+  <script>
+    const canvas = document.getElementById('map');
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width;
+    const H = canvas.height;
+    const imgData = ctx.createImageData(W, H);
+
+    const els = {
+      tick: document.getElementById('s-tick'),
+      pop: document.getElementById('s-pop'),
+      div: document.getElementById('s-div'),
+      food: document.getElementById('s-food'),
+      genom: document.getElementById('s-genom'),
+      tps: document.getElementById('s-tps'),
+    };
+
+    const btnStart = document.getElementById('btn-start');
+    const btnStop = document.getElementById('btn-stop');
+    const status = document.getElementById('status');
+
+    let worker = null;
+    let updateTimer = null;
+    let latestData = null;
+    let latestMap = null;
+
+    function initWorker() {
+      worker = new Worker('worker.js', { type: 'module' });
+      worker.onmessage = function(e) {
+        const msg = e.data;
+        if (msg.type === 'ready') {
+          status.textContent = 'Bereit.';
+          btnStart.disabled = false;
+        } else if (msg.type === 'tick') {
+          latestData = msg.data;
+          if (msg.map) latestMap = msg.map;
+        }
+      };
+      worker.postMessage({ type: 'init' });
+    }
+
+    function updateUI() {
+      if (!latestData) return;
+      const d = latestData;
+      els.tick.textContent = d.tick.toLocaleString('de-DE');
+      els.pop.textContent = d.population.toLocaleString('de-DE');
+      els.div.textContent = d.diversitaet;
+      els.food.textContent = d.nahrung_prozent.toFixed(1);
+      els.genom.textContent = d.genom_avg.toFixed(1);
+      els.tps.textContent = d.tps ? d.tps.toLocaleString('de-DE') : '—';
+
+      if (latestMap) {
+        drawMap(latestMap, d.speicher_groesse);
+        latestMap = null;
+      }
+    }
+
+    const NAHRUNG_A = 42;
+    const NAHRUNG_B = 43;
+
+    function drawMap(speicher, speicherGroesse) {
+      const pixels = W * H;
+      const ratio = speicherGroesse / pixels;
+      const data = imgData.data;
+
+      for (let i = 0; i < pixels; i++) {
+        const idx = i * 4;
+        const si = Math.floor(i * ratio);
+        const val = speicher[si] || 0;
+
+        if (val === 0) {
+          data[idx] = 13; data[idx+1] = 17; data[idx+2] = 23;
+        } else if (val === NAHRUNG_A || val === NAHRUNG_B) {
+          data[idx] = 35; data[idx+1] = 134; data[idx+2] = 54;
+        } else {
+          data[idx] = 200; data[idx+1] = 210; data[idx+2] = 220;
+        }
+        data[idx+3] = 255;
+      }
+
+      ctx.putImageData(imgData, 0, 0);
+    }
+
+    btnStart.addEventListener('click', () => {
+      worker.postMessage({ type: 'start', config: '{}' });
+      btnStart.disabled = true;
+      btnStop.disabled = false;
+      status.textContent = 'Simulation l\u00E4uft...';
+      updateTimer = setInterval(updateUI, 100);
+    });
+
+    btnStop.addEventListener('click', () => {
+      worker.postMessage({ type: 'stop' });
+      btnStart.disabled = false;
+      btnStop.disabled = true;
+      status.textContent = 'Pausiert.';
+      if (updateTimer) { clearInterval(updateTimer); updateTimer = null; }
+    });
+
+    // Clear canvas
+    ctx.fillStyle = '#0d1117';
+    ctx.fillRect(0, 0, W, H);
+
+    btnStart.disabled = true;
+    initWorker();
+  </script>
+</body>
+</html>

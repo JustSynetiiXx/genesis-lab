@@ -119,24 +119,36 @@ impl Simulation {
         let pop = self.pointer_liste.len();
         let nahrung = self.welt.nahrung_zaehlen();
         let ops_total: u64 = self.ops_zaehler.iter().sum();
+        let speicher_groesse = self.welt.groesse();
 
-        // Diversität: Anzahl einzigartiger Genom-Hashes
-        let g = self.welt.groesse();
+        // Diversität + Genom-Durchschnittslänge
+        let g = speicher_groesse;
         let max_zell = self.cfg.max_zellgroesse;
         let mut genom_set: HashSet<u64> = HashSet::new();
+        let mut laengen_summe: usize = 0;
         for p in &self.pointer_liste {
             let gl = genom_laenge(&self.welt.speicher, p.startadresse, g, max_zell);
+            laengen_summe += gl;
             let hash = simple_hash(&self.welt.speicher, p.startadresse, gl, g);
             genom_set.insert(hash);
         }
         let diversitaet = genom_set.len();
+        let genom_avg = if pop > 0 {
+            (laengen_summe as f64 / pop as f64 * 10.0).round() / 10.0
+        } else {
+            0.0
+        };
+        let nahrung_prozent = (nahrung as f64 / speicher_groesse as f64 * 10000.0).round() / 100.0;
 
         let result = json!({
             "tick": self.tick_nr,
             "population": pop,
             "diversitaet": diversitaet,
             "nahrung": nahrung,
+            "nahrung_prozent": nahrung_prozent,
             "ops": ops_total,
+            "genom_avg": genom_avg,
+            "speicher_groesse": speicher_groesse,
         });
 
         result.to_string()
