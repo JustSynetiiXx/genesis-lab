@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Genesis Lab</title>
+  <title>EvoSandbox</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -39,7 +39,6 @@
       position: relative;
     }
 
-    /* Noise overlay */
     body::before {
       content: '';
       position: fixed;
@@ -53,411 +52,88 @@
 
     body > * { position: relative; z-index: 1; }
 
-    /* --- Header --- */
-    .header {
-      text-align: center;
-      margin-bottom: 28px;
-    }
+    .header { text-align: center; margin-bottom: 28px; }
+    .header h1 { font-family: var(--sans); font-weight: 600; font-size: 20px; letter-spacing: 6px; color: var(--text); text-transform: uppercase; }
+    .header .subtitle { font-family: var(--sans); font-weight: 300; font-size: 12px; color: var(--text-dim); letter-spacing: 3px; margin-top: 4px; text-transform: uppercase; }
 
-    .header h1 {
-      font-family: var(--sans);
-      font-weight: 600;
-      font-size: 20px;
-      letter-spacing: 6px;
-      color: var(--text);
-      text-transform: uppercase;
-    }
+    .glass { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
 
-    .header .subtitle {
-      font-family: var(--sans);
-      font-weight: 300;
-      font-size: 12px;
-      color: var(--text-dim);
-      letter-spacing: 3px;
-      margin-top: 4px;
-      text-transform: uppercase;
-    }
+    .control-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; width: 100%; max-width: 640px; }
 
-    /* --- Glass Panel --- */
-    .glass {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-    }
+    button { font-family: var(--mono); font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; border: 1px solid var(--border); border-radius: 8px; padding: 8px 20px; cursor: pointer; transition: all 0.2s ease; background: var(--surface); color: var(--text-dim); }
+    button:disabled { opacity: 0.25; cursor: default; box-shadow: none !important; }
 
-    /* --- Control Bar --- */
-    .control-bar {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 16px;
-      width: 100%;
-      max-width: 640px;
-    }
-
-    button {
-      font-family: var(--mono);
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 8px 20px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      background: var(--surface);
-      color: var(--text-dim);
-    }
-
-    button:disabled {
-      opacity: 0.25;
-      cursor: default;
-      box-shadow: none !important;
-    }
-
-    .btn-start {
-      color: var(--green);
-      border-color: rgba(34,197,94,0.2);
-    }
-    .btn-start:hover:not(:disabled) {
-      background: var(--green-dim);
-      border-color: rgba(34,197,94,0.4);
-      box-shadow: 0 0 20px rgba(34,197,94,0.15);
-    }
-
-    .btn-stop {
-      color: var(--red);
-      border-color: rgba(239,68,68,0.2);
-    }
-    .btn-stop:hover:not(:disabled) {
-      background: rgba(239,68,68,0.1);
-      border-color: rgba(239,68,68,0.4);
-      box-shadow: 0 0 20px rgba(239,68,68,0.15);
-    }
-
-    .btn-params {
-      margin-left: auto;
-      color: var(--text-dim);
-      font-size: 11px;
-      padding: 8px 14px;
-    }
-    .btn-params:hover:not(:disabled) {
-      color: var(--text);
-      border-color: rgba(255,255,255,0.12);
-    }
-    .btn-params .arrow {
-      display: inline-block;
-      transition: transform 0.3s ease;
-      margin-left: 4px;
-      font-size: 9px;
-    }
+    .btn-start { color: var(--green); border-color: rgba(34,197,94,0.2); }
+    .btn-start:hover:not(:disabled) { background: var(--green-dim); border-color: rgba(34,197,94,0.4); box-shadow: 0 0 20px rgba(34,197,94,0.15); }
+    .btn-stop { color: var(--red); border-color: rgba(239,68,68,0.2); }
+    .btn-stop:hover:not(:disabled) { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.4); box-shadow: 0 0 20px rgba(239,68,68,0.15); }
+    .btn-params { margin-left: auto; color: var(--text-dim); font-size: 11px; padding: 8px 14px; }
+    .btn-params:hover:not(:disabled) { color: var(--text); border-color: rgba(255,255,255,0.12); }
+    .btn-params .arrow { display: inline-block; transition: transform 0.3s ease; margin-left: 4px; font-size: 9px; }
     .btn-params.open .arrow { transform: rotate(180deg); }
 
-    /* --- Parameter Panel --- */
-    .params-panel {
-      width: 100%;
-      max-width: 640px;
-      overflow: hidden;
-      max-height: 0;
-      opacity: 0;
-      transition: max-height 0.4s ease, opacity 0.3s ease, margin 0.3s ease;
-      margin-bottom: 0;
-    }
-    .params-panel.open {
-      max-height: 400px;
-      opacity: 1;
-      margin-bottom: 16px;
-    }
+    .params-panel { width: 100%; max-width: 640px; overflow: hidden; max-height: 0; opacity: 0; transition: max-height 0.4s ease, opacity 0.3s ease, margin 0.3s ease; margin-bottom: 0; }
+    .params-panel.open { max-height: 700px; opacity: 1; margin-bottom: 16px; }
     .params-panel.disabled { opacity: 0.2; pointer-events: none; }
+    .params-inner { padding: 16px 20px; }
 
-    .params-inner {
-      padding: 16px 20px;
-    }
-
-    .param-row {
-      display: flex;
-      align-items: center;
-      margin-bottom: 12px;
-      gap: 12px;
-    }
+    .param-row { display: flex; align-items: center; margin-bottom: 12px; gap: 12px; }
     .param-row:last-child { margin-bottom: 0; }
+    .param-row.hidden { display: none; }
+    .param-row.grayed { opacity: 0.25; pointer-events: none; }
 
-    .param-label {
-      font-family: var(--sans);
-      font-size: 12px;
-      font-weight: 400;
-      color: var(--text-dim);
-      min-width: 110px;
-      flex-shrink: 0;
-    }
+    .param-label { font-family: var(--sans); font-size: 12px; font-weight: 400; color: var(--text-dim); min-width: 110px; flex-shrink: 0; }
+    .param-val { font-family: var(--mono); font-size: 12px; font-weight: 600; color: var(--green); min-width: 56px; text-align: right; }
+    .param-hint { font-family: var(--sans); font-size: 11px; color: var(--text-dim); opacity: 0.6; margin-left: 122px; margin-top: -8px; margin-bottom: 12px; }
+    .param-hint.hidden { display: none; }
 
-    .param-val {
-      font-family: var(--mono);
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--green);
-      min-width: 56px;
-      text-align: right;
-    }
+    .param-sep { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
 
-    /* Custom range slider */
-    input[type="range"] {
-      -webkit-appearance: none;
-      appearance: none;
-      flex: 1;
-      height: 4px;
-      background: rgba(255,255,255,0.06);
-      border-radius: 2px;
-      outline: none;
-    }
-    input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      background: var(--green);
-      cursor: pointer;
-      box-shadow: 0 0 8px rgba(34,197,94,0.4);
-      border: none;
-    }
-    input[type="range"]::-moz-range-thumb {
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      background: var(--green);
-      cursor: pointer;
-      box-shadow: 0 0 8px rgba(34,197,94,0.4);
-      border: none;
-    }
+    input[type="range"] { -webkit-appearance: none; appearance: none; flex: 1; height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; outline: none; }
+    input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--green); cursor: pointer; box-shadow: 0 0 8px rgba(34,197,94,0.4); border: none; }
+    input[type="range"]::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: var(--green); cursor: pointer; box-shadow: 0 0 8px rgba(34,197,94,0.4); border: none; }
 
-    select {
-      font-family: var(--mono);
-      font-size: 12px;
-      background: rgba(255,255,255,0.04);
-      color: var(--text);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 6px 10px;
-      flex: 1;
-      outline: none;
-    }
+    select { font-family: var(--mono); font-size: 12px; background: rgba(255,255,255,0.04); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; flex: 1; outline: none; }
     select:focus { border-color: rgba(34,197,94,0.3); }
 
-    /* --- World Map --- */
-    .map-wrap {
-      width: 100%;
-      max-width: 640px;
-      margin-bottom: 16px;
-      position: relative;
-      border-radius: 12px;
-      overflow: hidden;
-      border: 1px solid var(--border);
-      box-shadow: 0 0 40px rgba(34,197,94,0.04), inset 0 0 40px rgba(0,0,0,0.3);
-    }
-    .map-wrap.active {
-      border-color: var(--border-glow);
-      box-shadow: 0 0 60px rgba(34,197,94,0.06), inset 0 0 40px rgba(0,0,0,0.3);
-    }
+    input[type="checkbox"] { accent-color: var(--green); width: 16px; height: 16px; cursor: pointer; }
 
-    #map {
-      display: block;
-      width: 100%;
-      height: auto;
-      min-height: 300px;
-      image-rendering: pixelated;
-      border-radius: 11px;
-    }
+    .map-wrap { width: 100%; max-width: 640px; margin-bottom: 16px; position: relative; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); box-shadow: 0 0 40px rgba(34,197,94,0.04), inset 0 0 40px rgba(0,0,0,0.3); }
+    .map-wrap.active { border-color: var(--border-glow); box-shadow: 0 0 60px rgba(34,197,94,0.06), inset 0 0 40px rgba(0,0,0,0.3); }
+    #map { display: block; width: 100%; height: auto; min-height: 200px; image-rendering: pixelated; border-radius: 11px; }
 
-    /* Scanline effect */
-    .scanline {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      overflow: hidden;
-      border-radius: 11px;
-    }
-    .scanline::after {
-      content: '';
-      position: absolute;
-      left: 0;
-      width: 100%;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, rgba(34,197,94,0.08), rgba(6,182,212,0.06), transparent);
-      animation: scanmove 4s linear infinite;
-    }
-    @keyframes scanmove {
-      0% { top: -2px; }
-      100% { top: 100%; }
-    }
+    .scanline { position: absolute; inset: 0; pointer-events: none; overflow: hidden; border-radius: 11px; }
+    .scanline::after { content: ''; position: absolute; left: 0; width: 100%; height: 2px; background: linear-gradient(90deg, transparent, rgba(34,197,94,0.08), rgba(6,182,212,0.06), transparent); animation: scanmove 4s linear infinite; }
+    @keyframes scanmove { 0% { top: -2px; } 100% { top: 100%; } }
 
-    /* --- Stats Grid --- */
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-bottom: 16px;
-      width: 100%;
-      max-width: 640px;
-    }
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; width: 100%; max-width: 640px; }
+    .stat { padding: 14px 12px; text-align: center; }
+    .stat-label { font-family: var(--sans); font-size: 10px; font-weight: 400; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 6px; }
+    .stat-value { font-family: var(--mono); font-size: 22px; font-weight: 700; color: var(--green); transition: color 0.3s ease; line-height: 1; }
 
-    .stat {
-      padding: 14px 12px;
-      text-align: center;
-    }
+    .pop-wrap { width: 100%; max-width: 640px; margin-bottom: 16px; position: relative; }
+    .section-label { font-family: var(--sans); font-size: 10px; font-weight: 400; color: var(--text-dim); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
+    #pop-graph { display: block; width: 100%; height: auto; border-radius: 11px; }
 
-    .stat-label {
-      font-family: var(--sans);
-      font-size: 10px;
-      font-weight: 400;
-      color: var(--text-dim);
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      margin-bottom: 6px;
-    }
-
-    .stat-value {
-      font-family: var(--mono);
-      font-size: 22px;
-      font-weight: 700;
-      color: var(--green);
-      transition: color 0.3s ease;
-      line-height: 1;
-    }
-
-    /* --- Population Graph --- */
-    .pop-wrap {
-      width: 100%;
-      max-width: 640px;
-      margin-bottom: 16px;
-      position: relative;
-    }
-
-    .section-label {
-      font-family: var(--sans);
-      font-size: 10px;
-      font-weight: 400;
-      color: var(--text-dim);
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      margin-bottom: 8px;
-    }
-
-    #pop-graph {
-      display: block;
-      width: 100%;
-      height: auto;
-      border-radius: 11px;
-    }
-
-    /* --- Ops Distribution --- */
-    .ops-wrap {
-      width: 100%;
-      max-width: 640px;
-      margin-bottom: 24px;
-    }
-
-    .ops-inner {
-      padding: 14px 16px;
-    }
-
-    .ops-row {
-      display: flex;
-      align-items: center;
-      margin-bottom: 6px;
-      height: 20px;
-    }
+    .ops-wrap { width: 100%; max-width: 640px; margin-bottom: 24px; }
+    .ops-inner { padding: 14px 16px; }
+    .ops-row { display: flex; align-items: center; margin-bottom: 6px; height: 20px; }
     .ops-row:last-child { margin-bottom: 0; }
+    .ops-name { font-family: var(--mono); font-size: 10px; font-weight: 400; color: var(--text-dim); width: 80px; flex-shrink: 0; letter-spacing: 0.5px; }
+    .ops-bar-bg { flex: 1; height: 6px; background: rgba(255,255,255,0.04); border-radius: 3px; overflow: hidden; margin: 0 10px; }
+    .ops-bar { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
+    .ops-pct { font-family: var(--mono); font-size: 10px; color: var(--text-dim); width: 44px; text-align: right; }
 
-    .ops-name {
-      font-family: var(--mono);
-      font-size: 10px;
-      font-weight: 400;
-      color: var(--text-dim);
-      width: 80px;
-      flex-shrink: 0;
-      letter-spacing: 0.5px;
-    }
-
-    .ops-bar-bg {
-      flex: 1;
-      height: 6px;
-      background: rgba(255,255,255,0.04);
-      border-radius: 3px;
-      overflow: hidden;
-      margin: 0 10px;
-    }
-
-    .ops-bar {
-      height: 100%;
-      border-radius: 3px;
-      transition: width 0.4s ease;
-    }
-
-    .ops-pct {
-      font-family: var(--mono);
-      font-size: 10px;
-      color: var(--text-dim);
-      width: 44px;
-      text-align: right;
-    }
-
-    /* --- Footer --- */
-    .footer {
-      text-align: center;
-      margin-top: 8px;
-    }
-
-    .footer p {
-      font-family: var(--sans);
-      font-size: 11px;
-      font-weight: 300;
-      color: var(--text-dim);
-      letter-spacing: 0.5px;
-      line-height: 1.8;
-    }
-
-    .footer a {
-      color: var(--cyan);
-      text-decoration: none;
-      border-bottom: 1px solid rgba(6,182,212,0.2);
-      transition: border-color 0.2s;
-    }
+    .footer { text-align: center; margin-top: 8px; }
+    .footer p { font-family: var(--sans); font-size: 11px; font-weight: 300; color: var(--text-dim); letter-spacing: 0.5px; line-height: 1.8; }
+    .footer a { color: var(--cyan); text-decoration: none; border-bottom: 1px solid rgba(6,182,212,0.2); transition: border-color 0.2s; }
     .footer a:hover { border-color: var(--cyan); }
 
-    /* --- Status --- */
-    .status-line {
-      font-family: var(--mono);
-      font-size: 10px;
-      color: var(--text-dim);
-      letter-spacing: 1px;
-      margin-bottom: 20px;
-      text-align: center;
-      width: 100%;
-      max-width: 640px;
-    }
-    .status-line .dot {
-      display: inline-block;
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--text-dim);
-      margin-right: 6px;
-      vertical-align: middle;
-    }
-    .status-line .dot.live {
-      background: var(--green);
-      box-shadow: 0 0 8px rgba(34,197,94,0.5);
-      animation: pulse-dot 2s ease-in-out infinite;
-    }
-    @keyframes pulse-dot {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
-    }
+    .status-line { font-family: var(--mono); font-size: 10px; color: var(--text-dim); letter-spacing: 1px; margin-bottom: 20px; text-align: center; width: 100%; max-width: 640px; }
+    .status-line .dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--text-dim); margin-right: 6px; vertical-align: middle; }
+    .status-line .dot.live { background: var(--green); box-shadow: 0 0 8px rgba(34,197,94,0.5); animation: pulse-dot 2s ease-in-out infinite; }
+    @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
-    /* --- Responsive --- */
     @media (max-width: 480px) {
       body { padding: 20px 10px 40px; }
       .stats { grid-template-columns: repeat(2, 1fr); gap: 8px; }
@@ -472,21 +148,40 @@
 <body>
 
   <div class="header">
-    <h1>Genesis Lab</h1>
+    <h1>EvoSandbox</h1>
     <div class="subtitle">Digital Evolution Sandbox</div>
   </div>
 
-  <!-- Control Bar -->
   <div class="control-bar">
     <button class="btn-start" id="btn-start" disabled>Start</button>
     <button class="btn-stop" id="btn-stop" disabled>Stop</button>
     <button class="btn-params" id="btn-toggle-params">Params <span class="arrow">&#9660;</span></button>
   </div>
 
-  <!-- Parameter Panel -->
   <div class="params-panel glass" id="params-panel">
     <div class="params-inner">
+      <!-- Topologie -->
       <div class="param-row">
+        <span class="param-label">Topologie</span>
+        <select id="p-topo">
+          <option value="linear">Linear</option>
+          <option value="grid">2D Grid (Torus)</option>
+        </select>
+        <span class="param-val" id="pv-topo">Linear</span>
+      </div>
+      <!-- Grid dims (hidden by default) -->
+      <div class="param-row hidden" id="row-grid-w">
+        <span class="param-label">Grid-Breite</span>
+        <input type="range" id="p-grid-w" min="128" max="1024" value="1024" step="64">
+        <span class="param-val" id="pv-grid-w">1024</span>
+      </div>
+      <div class="param-row hidden" id="row-grid-h">
+        <span class="param-label">Grid-H&ouml;he</span>
+        <input type="range" id="p-grid-h" min="128" max="1024" value="1024" step="64">
+        <span class="param-val" id="pv-grid-h">1024</span>
+      </div>
+      <!-- Speicher (grayed in grid mode) -->
+      <div class="param-row" id="row-speicher">
         <span class="param-label">Speicher</span>
         <select id="p-speicher">
           <option value="262144">256 KB</option>
@@ -495,11 +190,30 @@
         </select>
         <span class="param-val" id="pv-speicher">1 MB</span>
       </div>
+      <hr class="param-sep">
+      <!-- Nahrung Modus -->
+      <div class="param-row">
+        <span class="param-label">Nahrung</span>
+        <select id="p-nahrung-modus">
+          <option value="gleichverteilt">Gleichverteilt</option>
+          <option value="gradient">Gradient (Oasen)</option>
+        </select>
+        <span class="param-val" id="pv-nahrung-modus"></span>
+      </div>
+      <div class="param-hint hidden" id="hint-oasen">4 Oasen in den Ecken</div>
       <div class="param-row">
         <span class="param-label">Nahrung/Tick</span>
         <input type="range" id="p-nahrung" min="50" max="500" value="200" step="10">
         <span class="param-val" id="pv-nahrung">200</span>
       </div>
+      <!-- Typ B -->
+      <div class="param-row">
+        <span class="param-label">Typ B Nahrung</span>
+        <input type="checkbox" id="p-kopieren-b" checked>
+        <span class="param-val" style="flex:1;text-align:left;min-width:0;font-family:var(--sans);font-weight:300;font-size:11px;color:var(--text-dim)">Kopier-Voraussetzung</span>
+      </div>
+      <div class="param-hint">Organismen m&uuml;ssen Typ B fressen bevor sie sich kopieren k&ouml;nnen</div>
+      <hr class="param-sep">
       <div class="param-row">
         <span class="param-label">Mutation</span>
         <input type="range" id="p-mutation" min="100" max="2000" value="500" step="50">
@@ -523,44 +237,22 @@
     </div>
   </div>
 
-  <!-- Status -->
   <div class="status-line" id="status"><span class="dot" id="status-dot"></span>Loading WASM...</div>
 
-  <!-- World Map -->
   <div class="map-wrap glass" id="map-wrap">
     <canvas id="map" width="640" height="320"></canvas>
     <div class="scanline"></div>
   </div>
 
-  <!-- Stats Grid -->
   <div class="stats">
-    <div class="stat glass">
-      <div class="stat-label">Tick</div>
-      <div class="stat-value" id="s-tick">0</div>
-    </div>
-    <div class="stat glass">
-      <div class="stat-label">Population</div>
-      <div class="stat-value" id="s-pop">0</div>
-    </div>
-    <div class="stat glass">
-      <div class="stat-label">Diversit&auml;t</div>
-      <div class="stat-value" id="s-div">0</div>
-    </div>
-    <div class="stat glass">
-      <div class="stat-label">Nahrung</div>
-      <div class="stat-value" id="s-food">0<span style="font-size:13px;font-weight:400;color:var(--text-dim)">%</span></div>
-    </div>
-    <div class="stat glass">
-      <div class="stat-label">Genom &empty;</div>
-      <div class="stat-value" id="s-genom">0</div>
-    </div>
-    <div class="stat glass">
-      <div class="stat-label">Ticks/s</div>
-      <div class="stat-value" id="s-tps">&mdash;</div>
-    </div>
+    <div class="stat glass"><div class="stat-label">Tick</div><div class="stat-value" id="s-tick">0</div></div>
+    <div class="stat glass"><div class="stat-label">Population</div><div class="stat-value" id="s-pop">0</div></div>
+    <div class="stat glass"><div class="stat-label">Diversit&auml;t</div><div class="stat-value" id="s-div">0</div></div>
+    <div class="stat glass"><div class="stat-label">Nahrung</div><div class="stat-value" id="s-food">0<span style="font-size:13px;font-weight:400;color:var(--text-dim)">%</span></div></div>
+    <div class="stat glass"><div class="stat-label">Genom &empty;</div><div class="stat-value" id="s-genom">0</div></div>
+    <div class="stat glass"><div class="stat-label">Ticks/s</div><div class="stat-value" id="s-tps">&mdash;</div></div>
   </div>
 
-  <!-- Population Graph -->
   <div class="pop-wrap">
     <div class="section-label">Population History</div>
     <div class="glass" style="border-radius:12px;overflow:hidden;">
@@ -568,13 +260,11 @@
     </div>
   </div>
 
-  <!-- Operations Distribution -->
   <div class="ops-wrap">
     <div class="section-label">Operations</div>
     <div class="glass ops-inner" id="ops-chart" style="border-radius:12px;"></div>
   </div>
 
-  <!-- Footer -->
   <div class="footer">
     <p>Powered by real evolution. No fitness function. No scripts.</p>
   </div>
@@ -582,9 +272,23 @@
   <script>
     // --- Map Canvas ---
     const mapCanvas = document.getElementById('map');
-    const mapCtx = mapCanvas.getContext('2d');
-    const MW = mapCanvas.width, MH = mapCanvas.height;
-    const mapImg = mapCtx.createImageData(MW, MH);
+    let mapCtx = mapCanvas.getContext('2d');
+    let MW = mapCanvas.width, MH = mapCanvas.height;
+    let mapImg = mapCtx.createImageData(MW, MH);
+
+    // Track if we're in grid mode for map rendering
+    let isGridMode = false;
+    let gridW = 0, gridH = 0;
+
+    function resizeMap(w, h) {
+      mapCanvas.width = w;
+      mapCanvas.height = h;
+      MW = w; MH = h;
+      mapCtx = mapCanvas.getContext('2d');
+      mapImg = mapCtx.createImageData(MW, MH);
+      mapCtx.fillStyle = '#09090b';
+      mapCtx.fillRect(0, 0, MW, MH);
+    }
 
     // --- Population Graph ---
     const popCanvas = document.getElementById('pop-graph');
@@ -595,21 +299,13 @@
 
     // --- Ops Chart ---
     const OPS_NAMES = ['NOOP','LESEN','SCHREIBEN','ADD','VERGL_SPR','KOPIEREN','LESEN_EXT','SELBST','SETZEN','ENDE','SCHR_EXT'];
-    const OPS_COLORS = {
-      6: '#22c55e',  // LESEN_EXT green
-      10: '#f97316', // SCHR_EXT orange
-      5: '#06b6d4',  // KOPIEREN cyan
-    };
+    const OPS_COLORS = { 6: '#22c55e', 10: '#f97316', 5: '#06b6d4' };
     const OPS_DEFAULT_COLOR = '#3f3f46';
 
     const opsChart = document.getElementById('ops-chart');
     opsChart.innerHTML = OPS_NAMES.map((name, i) => {
       const color = OPS_COLORS[i] || OPS_DEFAULT_COLOR;
-      return `<div class="ops-row">
-        <span class="ops-name">${name}</span>
-        <div class="ops-bar-bg"><div class="ops-bar" id="ob-${i}" style="width:0%;background:${color}"></div></div>
-        <span class="ops-pct" id="op-${i}">0%</span>
-      </div>`;
+      return `<div class="ops-row"><span class="ops-name">${name}</span><div class="ops-bar-bg"><div class="ops-bar" id="ob-${i}" style="width:0%;background:${color}"></div></div><span class="ops-pct" id="op-${i}">0%</span></div>`;
     }).join('');
 
     // --- DOM refs ---
@@ -627,8 +323,60 @@
     const btnToggle = document.getElementById('btn-toggle-params');
     const paramsPanel = document.getElementById('params-panel');
     const statusEl = document.getElementById('status');
-    const statusDot = document.getElementById('status-dot');
     const mapWrap = document.getElementById('map-wrap');
+
+    // --- Topology / params logic ---
+    const selectTopo = document.getElementById('p-topo');
+    const rowGridW = document.getElementById('row-grid-w');
+    const rowGridH = document.getElementById('row-grid-h');
+    const rowSpeicher = document.getElementById('row-speicher');
+    const selectSpeicher = document.getElementById('p-speicher');
+    const selectNahrungModus = document.getElementById('p-nahrung-modus');
+    const hintOasen = document.getElementById('hint-oasen');
+    const sliderGridW = document.getElementById('p-grid-w');
+    const sliderGridH = document.getElementById('p-grid-h');
+    const pvGridW = document.getElementById('pv-grid-w');
+    const pvGridH = document.getElementById('pv-grid-h');
+    const pvTopo = document.getElementById('pv-topo');
+
+    function updateTopoUI() {
+      const isGrid = selectTopo.value === 'grid';
+      rowGridW.classList.toggle('hidden', !isGrid);
+      rowGridH.classList.toggle('hidden', !isGrid);
+      rowSpeicher.classList.toggle('grayed', isGrid);
+      pvTopo.textContent = isGrid ? 'Grid' : 'Linear';
+
+      // Gradient only available for grid
+      if (!isGrid) {
+        selectNahrungModus.value = 'gleichverteilt';
+        updateNahrungModusUI();
+      }
+      const gradOption = selectNahrungModus.querySelector('option[value="gradient"]');
+      gradOption.disabled = !isGrid;
+
+      if (isGrid) {
+        updateGridSpeicherDisplay();
+      }
+    }
+
+    function updateGridSpeicherDisplay() {
+      const w = parseInt(sliderGridW.value);
+      const h = parseInt(sliderGridH.value);
+      const bytes = w * h;
+      const kb = bytes / 1024;
+      const label = kb >= 1024 ? (kb / 1024).toFixed(1) + ' MB' : Math.round(kb) + ' KB';
+      document.getElementById('pv-speicher').textContent = label;
+    }
+
+    function updateNahrungModusUI() {
+      const isGradient = selectNahrungModus.value === 'gradient';
+      hintOasen.classList.toggle('hidden', !isGradient);
+    }
+
+    selectTopo.addEventListener('change', updateTopoUI);
+    sliderGridW.addEventListener('input', () => { pvGridW.textContent = sliderGridW.value; if (selectTopo.value === 'grid') updateGridSpeicherDisplay(); });
+    sliderGridH.addEventListener('input', () => { pvGridH.textContent = sliderGridH.value; if (selectTopo.value === 'grid') updateGridSpeicherDisplay(); });
+    selectNahrungModus.addEventListener('change', updateNahrungModusUI);
 
     // --- Parameter Panel ---
     let paramsOpen = false;
@@ -652,21 +400,38 @@
       el.addEventListener('input', () => { dsp.textContent = s.fmt(el.value); });
     });
 
-    const selectSpeicher = document.getElementById('p-speicher');
     selectSpeicher.addEventListener('change', () => {
       const labels = { '262144': '256 KB', '524288': '512 KB', '1048576': '1 MB' };
       document.getElementById('pv-speicher').textContent = labels[selectSpeicher.value] || selectSpeicher.value;
     });
 
     function getConfigJSON() {
-      return JSON.stringify({
-        speicher_groesse: parseInt(selectSpeicher.value),
+      const isGrid = selectTopo.value === 'grid';
+      const gw = parseInt(sliderGridW.value);
+      const gh = parseInt(sliderGridH.value);
+
+      const cfg = {
         nahrung_pro_tick: parseInt(document.getElementById('p-nahrung').value),
         mutationsrate: parseInt(document.getElementById('p-mutation').value),
         verfall_pro_tick: parseInt(document.getElementById('p-verfall').value),
         spawn_energie: parseInt(document.getElementById('p-spawn').value),
         fress_energie: parseInt(document.getElementById('p-fress').value),
-      });
+        kopieren_braucht_b: document.getElementById('p-kopieren-b').checked,
+      };
+
+      if (isGrid) {
+        cfg.topologie = 'grid';
+        cfg.grid_breite = gw;
+        cfg.grid_hoehe = gh;
+        cfg.speicher_groesse = gw * gh;
+        if (selectNahrungModus.value === 'gradient') {
+          cfg.nahrung_modus = 'gradient';
+        }
+      } else {
+        cfg.speicher_groesse = parseInt(selectSpeicher.value);
+      }
+
+      return JSON.stringify(cfg);
     }
 
     // --- Worker ---
@@ -676,17 +441,33 @@
     let latestData = null;
     let latestMap = null;
     let simRunning = false;
+    let mapInitialized = false;
 
     function initWorker() {
       worker = new Worker('worker.js', { type: 'module' });
       worker.onmessage = function(e) {
         const msg = e.data;
         if (msg.type === 'ready') {
-          statusEl.innerHTML = '<span class="dot" id="status-dot"></span>Ready';
+          statusEl.innerHTML = '<span class="dot"></span>Ready';
           btnStart.disabled = false;
         } else if (msg.type === 'tick') {
           latestData = msg.data;
           if (msg.map) latestMap = msg.map;
+
+          // On first tick, detect grid mode and resize canvas
+          if (!mapInitialized && latestData.grid_breite > 0 && latestData.grid_hoehe > 0) {
+            isGridMode = true;
+            gridW = latestData.grid_breite;
+            gridH = latestData.grid_hoehe;
+            // Scale to fit max 640px wide
+            const scale = Math.min(640 / gridW, 640 / gridH, 1);
+            resizeMap(Math.round(gridW * scale), Math.round(gridH * scale));
+            mapInitialized = true;
+          } else if (!mapInitialized) {
+            isGridMode = false;
+            resizeMap(640, 320);
+            mapInitialized = true;
+          }
         }
       };
       worker.postMessage({ type: 'init' });
@@ -702,13 +483,12 @@
       els.genom.textContent = d.genom_avg.toFixed(1);
       els.tps.textContent = d.tps ? d.tps.toLocaleString('de-DE') : '\u2014';
 
-      // Population history
       popHistory.push(d.population);
       if (popHistory.length > POP_HISTORY_MAX) popHistory.shift();
       drawPopGraph();
 
       if (latestMap) {
-        drawMap(latestMap, d.speicher_groesse);
+        drawMap(latestMap, d.speicher_groesse, d.grid_breite, d.grid_hoehe);
         latestMap = null;
       }
     }
@@ -725,33 +505,41 @@
     }
 
     // --- Map ---
-    const NAHRUNG_A = 42;
-    const NAHRUNG_B = 43;
+    const NAHRUNG_A = 42, NAHRUNG_B = 43;
 
-    function drawMap(speicher, speicherGroesse) {
+    function drawMap(speicher, speicherGroesse, gBreite, gHoehe) {
       const pixels = MW * MH;
-      const ratio = speicherGroesse / pixels;
       const data = mapImg.data;
 
-      for (let i = 0; i < pixels; i++) {
-        const idx = i * 4;
-        const si = Math.floor(i * ratio);
-        const val = speicher[si] || 0;
-
-        if (val === 0) {
-          // Black
-          data[idx] = 9; data[idx+1] = 9; data[idx+2] = 11;
-        } else if (val === NAHRUNG_A) {
-          // Green
-          data[idx] = 34; data[idx+1] = 197; data[idx+2] = 94;
-        } else if (val === NAHRUNG_B) {
-          // Yellow
-          data[idx] = 234; data[idx+1] = 179; data[idx+2] = 8;
-        } else {
-          // Code: white/cyan
-          data[idx] = 180; data[idx+1] = 230; data[idx+2] = 240;
+      if (isGridMode && gBreite > 0 && gHoehe > 0) {
+        // 2D grid: map each canvas pixel to a grid cell
+        for (let cy = 0; cy < MH; cy++) {
+          for (let cx = 0; cx < MW; cx++) {
+            const gx = Math.floor(cx * gBreite / MW);
+            const gy = Math.floor(cy * gHoehe / MH);
+            const si = gy * gBreite + gx;
+            const idx = (cy * MW + cx) * 4;
+            const val = speicher[si] || 0;
+            if (val === 0) { data[idx]=9; data[idx+1]=9; data[idx+2]=11; }
+            else if (val === NAHRUNG_A) { data[idx]=34; data[idx+1]=197; data[idx+2]=94; }
+            else if (val === NAHRUNG_B) { data[idx]=234; data[idx+1]=179; data[idx+2]=8; }
+            else { data[idx]=180; data[idx+1]=230; data[idx+2]=240; }
+            data[idx+3] = 255;
+          }
         }
-        data[idx+3] = 255;
+      } else {
+        // Linear mode
+        const ratio = speicherGroesse / pixels;
+        for (let i = 0; i < pixels; i++) {
+          const idx = i * 4;
+          const si = Math.floor(i * ratio);
+          const val = speicher[si] || 0;
+          if (val === 0) { data[idx]=9; data[idx+1]=9; data[idx+2]=11; }
+          else if (val === NAHRUNG_A) { data[idx]=34; data[idx+1]=197; data[idx+2]=94; }
+          else if (val === NAHRUNG_B) { data[idx]=234; data[idx+1]=179; data[idx+2]=8; }
+          else { data[idx]=180; data[idx+1]=230; data[idx+2]=240; }
+          data[idx+3] = 255;
+        }
       }
 
       mapCtx.putImageData(mapImg, 0, 0);
@@ -761,43 +549,33 @@
     function drawPopGraph() {
       popCtx.clearRect(0, 0, PW, PH);
       if (popHistory.length < 2) return;
-
       const max = Math.max(...popHistory, 1);
       const step = PW / (POP_HISTORY_MAX - 1);
 
-      // Gradient fill
       const grad = popCtx.createLinearGradient(0, 0, 0, PH);
       grad.addColorStop(0, 'rgba(34,197,94,0.25)');
       grad.addColorStop(1, 'rgba(34,197,94,0)');
 
       popCtx.beginPath();
       for (let i = 0; i < popHistory.length; i++) {
-        const x = i * step;
-        const y = PH - (popHistory[i] / max) * (PH - 8) - 4;
-        if (i === 0) popCtx.moveTo(x, y);
-        else popCtx.lineTo(x, y);
+        const x = i * step, y = PH - (popHistory[i] / max) * (PH - 8) - 4;
+        if (i === 0) popCtx.moveTo(x, y); else popCtx.lineTo(x, y);
       }
-      // Close for fill
-      const lastX = (popHistory.length - 1) * step;
-      popCtx.lineTo(lastX, PH);
+      popCtx.lineTo((popHistory.length - 1) * step, PH);
       popCtx.lineTo(0, PH);
       popCtx.closePath();
       popCtx.fillStyle = grad;
       popCtx.fill();
 
-      // Line
       popCtx.beginPath();
       popCtx.strokeStyle = '#22c55e';
       popCtx.lineWidth = 1.5;
       for (let i = 0; i < popHistory.length; i++) {
-        const x = i * step;
-        const y = PH - (popHistory[i] / max) * (PH - 8) - 4;
-        if (i === 0) popCtx.moveTo(x, y);
-        else popCtx.lineTo(x, y);
+        const x = i * step, y = PH - (popHistory[i] / max) * (PH - 8) - 4;
+        if (i === 0) popCtx.moveTo(x, y); else popCtx.lineTo(x, y);
       }
       popCtx.stroke();
 
-      // Max label
       popCtx.fillStyle = 'rgba(113,113,122,0.6)';
       popCtx.font = '10px "JetBrains Mono", monospace';
       popCtx.fillText('max: ' + max, 6, 14);
@@ -806,6 +584,7 @@
     // --- Start / Stop ---
     btnStart.addEventListener('click', () => {
       const config = getConfigJSON();
+      mapInitialized = false;
       worker.postMessage({ type: 'start', config });
       btnStart.disabled = true;
       btnStop.disabled = false;

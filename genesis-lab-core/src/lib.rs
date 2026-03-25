@@ -140,6 +140,11 @@ impl Simulation {
         };
         let nahrung_prozent = (nahrung as f64 / speicher_groesse as f64 * 10000.0).round() / 100.0;
 
+        let (grid_breite, grid_hoehe) = match self.cfg.grid_dims() {
+            Some((b, h)) => (b as u64, h as u64),
+            None => (0, 0),
+        };
+
         let result = json!({
             "tick": self.tick_nr,
             "population": pop,
@@ -150,6 +155,8 @@ impl Simulation {
             "genom_avg": genom_avg,
             "speicher_groesse": speicher_groesse,
             "ops_verteilung": self.ops_zaehler,
+            "grid_breite": grid_breite,
+            "grid_hoehe": grid_hoehe,
         });
 
         result.to_string()
